@@ -176,15 +176,24 @@ void vfree(void* x) {
 	__coverity_free__(x);
 }
 
-/* Disabled: Broken. Thinks we're overwriting the original allocation.
 void *krealloc(const void *p, size_t new_size, gfp_t flags)
 {
-	if (condition)
-		return __coverity_alloc__(new_size);
-	else
+	if (condition) {
+		void *resized;
+
+		resized = __coverity_alloc__(new_size);
+		/*
+		 * We can't tell coverity directly about our copy here,
+		 * since we don't know the size of "p", but we can at least
+		 * transfer taint and show we've written to "resized".
+		 */
+		__coverity_writeall__(resized);
+		__coverity_tainted_data_transitive__(resized, p);
+		__coverity_free__(p);
+		return resized;
+	} else
 		return 0;
 }
-*/
 
 typedef struct {} kmem_cache;
 
