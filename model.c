@@ -1,5 +1,6 @@
 /*
  * Coverity Scan model
+ * https://scan.coverity.com/models
  *
  * This is a modeling file for Coverity Scan.
  * Modeling helps to avoid false positives.
@@ -13,8 +14,7 @@
  *   variable could be either NULL or have some data.
  *
  * Coverity Scan doesn't pick up modifications automatically. The model file
- * must be uploaded by an admin in the analysis settings of
- * https://scan.coverity.com/projects/128?tab=Analysis+Settings
+ * must be uploaded by an admin in the analysis settings.
  *
  * Some of this initially cribbed from http://hg.python.org/cpython/file/tip/Misc/coverity_model.c
  */
@@ -49,25 +49,25 @@ int cpu_has_fxsr(void)
 	if (condition)
 		return 1;
 	else
-		return 0;	
+		return 0;
 }
 int cpu_has(void *, int foo)
 {
 	if (condition)
 		return 1;
 	else
-		return 0;	
+		return 0;
 }
 int static_cpu_has(int foo)
 {
 	if (condition)
 		return 1;
 	else
-		return 0;	
+		return 0;
 }
 
 
-/* Mark data copied from userspace as tainted.  */
+/* Mark data copied from userspace as tainted. */
 long copy_from_user(void *to, const void * from, unsigned long n)
 {
 	__coverity_tainted_data_argument__(from);
@@ -136,8 +136,6 @@ long get_user(void *x, const void * from)
 	__coverity_tainted_data_argument__(x);
 }
 
-
-
 void *memset(void *dst, int c, size_t len)
 {
 	__coverity_writeall__(dst);
@@ -148,7 +146,6 @@ void *memcpy(void *dst, void *src, size_t len)
 	__coverity_writeall__(dst);
 	return dst;
 }
-
 
 
 /*
