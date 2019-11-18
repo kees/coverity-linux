@@ -188,16 +188,14 @@ void *krealloc(const void *p, size_t new_size, gfp_t flags)
 
 typedef struct {} kmem_cache;
 
-/* Disabled: Broken. Need to pass __coverity_alloc__ the size of the type being assigned to.
 void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
 {
 	// we don't have a 'size' argument for this alloc routine.
 	if (condition)
-		return __coverity_alloc__(1);
+		return __coverity_alloc_nosize__();
 	else
 		return 0;
 }
-*/
 
 void kmem_cache_free(struct kmem_cache *cachep, void *objp)
 {
