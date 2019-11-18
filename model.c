@@ -21,6 +21,7 @@
 
 int condition;
 
+typedef int bool;
 
 void panic(const char *msg) {
     __coverity_panic__();
@@ -306,4 +307,21 @@ const char *kstrdup_const(const char *s, gfp_t gfp)
 void kfree_const(const char *s)
 {
 	kfree(s);
+}
+
+/*
+ * I haven't found a way to tell Coverity about "special" non-NULL
+ * pointer values. It thinks anything that is non-NULL is an allocation.
+ * This attempts to convince Coverity that the NULL and "special" cases
+ * are collapsed into a single path that treats those conditions as
+ * always freed.
+ */
+bool IS_ERR_OR_NULL(const void *ptr)
+{
+	if ((unsigned long)ptr == 0 ||
+	    (unsigned long)ptr >= (unsigned long)-4095) {
+		__coverity_free__(ptr);
+		return 1;
+	}
+	return 0;
 }
