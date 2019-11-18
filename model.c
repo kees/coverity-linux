@@ -280,12 +280,12 @@ void __raw_write_unlock(rwlock_t *lock)
 /*
  * bit spin locks
  */
-static inline void bit_spin_lock(int bitnum, unsigned long *addr)
+void bit_spin_lock(int bitnum, unsigned long *addr)
 {
         __coverity_exclusive_lock_acquire__(addr);
 }
 
-static inline void bit_spin_unlock(int bitnum, unsigned long *addr)
+void bit_spin_unlock(int bitnum, unsigned long *addr)
 {
         __coverity_exclusive_lock_release__(addr);
 }
