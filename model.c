@@ -279,3 +279,22 @@ static inline void bit_spin_unlock(int bitnum, unsigned long *addr)
 {
         __coverity_exclusive_lock_release__(addr);
 }
+
+/*
+ * Coverity doesn't understand about read-only memory segments in the
+ * kernel, so it will evaluate kstrdup_const() and kfree_const() as
+ * having different conditions for "is this memory in the r/o segment"
+ * between the kstrdup_const() and the kfree_const() calls. In order
+ * to ignore this, just treat all k*_const() helpers as not having
+ * the read-only logic.
+ */
+char *kstrdup(const char *s, gfp_t gfp);
+const char *kstrdup_const(const char *s, gfp_t gfp)
+{
+	return kstrdup(s, gfp);
+}
+
+void kfree_const(const char *s)
+{
+	kfree(s);
+}
