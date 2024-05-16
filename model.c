@@ -26,17 +26,17 @@ int condition;
 typedef int bool;
 
 void panic(const char *msg) {
-    __coverity_panic__();
+	__coverity_panic__();
 }
 
 /* Right now, coverity doesn't seem to model macros, so this isn't working.
  * Hopefully one day soon.. */
 void BUG(void) {
-    __coverity_panic__();
+	__coverity_panic__();
 }
 
 void unreachable(void) {
-    __coverity_panic__();
+	__coverity_panic__();
 }
 
 
@@ -253,18 +253,18 @@ void mutex_lock(struct mutex *lock)
 
 int mutex_trylock(struct mutex *lock)
 {
-    return trylock(lock);
+	return trylock(lock);
 }
 
 int mutex_lock_interruptible(struct mutex *lock)
 {
-    int cond;
-    if (cond)
-    {
-        __coverity_exclusive_lock_acquire__(lock);
-        return 0;
-    }
-    return -1;
+	int cond;
+	if (cond)
+	{
+		__coverity_exclusive_lock_acquire__(lock);
+		return 0;
+	}
+	return -1;
 }
 
 void mutex_unlock(struct mutex *lock)
@@ -301,12 +301,12 @@ void __raw_write_unlock(rwlock_t *lock)
  */
 void bit_spin_lock(int bitnum, unsigned long *addr)
 {
-        __coverity_exclusive_lock_acquire__(addr);
+		__coverity_exclusive_lock_acquire__(addr);
 }
 
 void bit_spin_unlock(int bitnum, unsigned long *addr)
 {
-        __coverity_exclusive_lock_release__(addr);
+		__coverity_exclusive_lock_release__(addr);
 }
 
 /*
@@ -333,142 +333,142 @@ void kfree_const(const char *s)
  */
 bool IS_ERR_OR_NULL(const void *ptr)
 {
-    if ((unsigned long)ptr == 0 ||
-        (unsigned long)ptr >= (unsigned long)-4095)
-    {
-        /* Do not free pointer here. When using this freeing, Coverity will report
-         * many "double-free" false positives. */
-        /* __coverity_free__(ptr); */
-        return 1;
-    }
-    return 0;
+	if ((unsigned long)ptr == 0 ||
+		(unsigned long)ptr >= (unsigned long)-4095)
+	{
+		/* Do not free pointer here. When using this freeing, Coverity will report
+		 * many "double-free" false positives. */
+		/* __coverity_free__(ptr); */
+		return 1;
+	}
+	return 0;
 }
 
 /* separate, generic, try_lock function */
 int trylock(void *lock)
 {
-    /* Using this uninitialized variable allows Coverity to analyze both
-     * outcomes of this function. */
-    int cond;
-    if (cond)
-    {
-        __coverity_exclusive_lock_acquire__(lock);
-        return 1;
-    }
-    return 0;
+	/* Using this uninitialized variable allows Coverity to analyze both
+	 * outcomes of this function. */
+	int cond;
+	if (cond)
+	{
+		__coverity_exclusive_lock_acquire__(lock);
+		return 1;
+	}
+	return 0;
 }
 
 /* kfree_skb and below */
 void kfree_skb(struct sk_buff *skb)
 {
-    __coverity_free__(skb);
+	__coverity_free__(skb);
 }
 
 static void kfree_skbmem(struct sk_buff *skb)
 {
-    __coverity_free__(skb);
+	__coverity_free__(skb);
 }
 
 /* This function is called, somewhat nested, from alloc_skb */
 void *kmalloc_reserve(size_t size, gfp_t flags, int node,
-                      bool *pfmemalloc)
+		      bool *pfmemalloc)
 {
-    void *addr = __coverity_alloc__(size);
-    return addr;
+	void *addr = __coverity_alloc__(size);
+	return addr;
 }
 
 int bit_spin_trylock(int bitnum, unsigned long *addr)
 {
-    return trylock(addr);
+	return trylock(addr);
 }
 
 void __bit_spin_unlock(int bitnum, unsigned long *addr)
 {
-    __coverity_exclusive_lock_release__(addr);
+	__coverity_exclusive_lock_release__(addr);
 }
 
 static inline int epoll_mutex_lock(struct mutex *mutex, int depth,
-                                   bool nonblock)
+				   bool nonblock)
 {
-    if (!nonblock)
-    {
-        __coverity_exclusive_lock_acquire__(mutex);
-        return 0;
-    }
-    if (trylock(mutex))
-        return 0;
-    return -EAGAIN;
+	if (!nonblock)
+	{
+		__coverity_exclusive_lock_acquire__(mutex);
+		return 0;
+	}
+	if (trylock(mutex))
+		return 0;
+	return -EAGAIN;
 }
 
 struct bus_type
 {
-    bool need_parent_lock;
+	bool need_parent_lock;
 };
 
 struct device
 {
-    struct device *parent;
-    struct bus_type *bus;
+	struct device *parent;
+	struct bus_type *bus;
 };
 
 void __device_driver_lock(struct device *dev, struct device *parent)
 {
-    if (parent && dev->bus->need_parent_lock)
-        __coverity_exclusive_lock_acquire__(parent);
-    __coverity_exclusive_lock_acquire__(dev);
+	if (parent && dev->bus->need_parent_lock)
+		__coverity_exclusive_lock_acquire__(parent);
+	__coverity_exclusive_lock_acquire__(dev);
 }
 
 void __device_driver_unlock(struct device *dev, struct device *parent)
 {
-    __coverity_exclusive_lock_release__(dev);
-    if (parent && dev->bus->need_parent_lock)
-        __coverity_exclusive_lock_release__(parent);
+	__coverity_exclusive_lock_release__(dev);
+	if (parent && dev->bus->need_parent_lock)
+		__coverity_exclusive_lock_release__(parent);
 }
 
 typedef struct
 {
-    int val;
+	int val;
 } raw_spinlock_t;
 
 /* Coverity sometimes does not seem to go deep enough, hence, also model higher level functions */
 void do_raw_spin_lock_flags(raw_spinlock_t *lock, unsigned long *flags)
 {
-    __coverity_exclusive_lock_acquire__(lock);
+	__coverity_exclusive_lock_acquire__(lock);
 }
 
 void do_raw_spin_unlock(raw_spinlock_t *lock)
 {
-    __coverity_exclusive_lock_release__(lock);
+	__coverity_exclusive_lock_release__(lock);
 }
 
 unsigned long _raw_spin_lock_irqsave(raw_spinlock_t *lock)
 {
-    __coverity_exclusive_lock_acquire__(lock);
+	__coverity_exclusive_lock_acquire__(lock);
 }
 
 void __raw_spin_unlock(raw_spinlock_t *lock)
 {
-    __coverity_exclusive_lock_release__(lock);
+	__coverity_exclusive_lock_release__(lock);
 }
 
 unsigned long _raw_spin_lock_irq(raw_spinlock_t *lock)
 {
-    __coverity_exclusive_lock_acquire__(lock);
+	__coverity_exclusive_lock_acquire__(lock);
 }
 
 void __raw_spin_unlock_irq(raw_spinlock_t *lock)
 {
-    __coverity_exclusive_lock_release__(lock);
+	__coverity_exclusive_lock_release__(lock);
 }
 
 void _raw_spin_unlock_irqrestore(raw_spinlock_t *lock, unsigned long flags)
 {
-    __coverity_exclusive_lock_release__(lock);
+	__coverity_exclusive_lock_release__(lock);
 }
 
 int _raw_spin_trylock(raw_spinlock_t *lock)
 {
-    return trylock(lock);
+	return trylock(lock);
 }
 
 /* rht locks */
@@ -484,15 +484,15 @@ struct rhash_head
 
 void rht_lock(struct bucket_table *tbl, struct rhash_lock_head **bkt)
 {
-    __coverity_exclusive_lock_acquire__(bkt);
+	__coverity_exclusive_lock_acquire__(bkt);
 }
 
 void rht_unlock(struct bucket_table *tbl, struct rhash_lock_head **bkt)
 {
-    __coverity_exclusive_lock_release__(bkt);
+	__coverity_exclusive_lock_release__(bkt);
 }
 
 void rht_assign_unlock(struct bucket_table *tbl, struct rhash_lock_head **bkt, struct rhash_head *obj)
 {
-    __coverity_exclusive_lock_release__(bkt);
+	__coverity_exclusive_lock_release__(bkt);
 }
