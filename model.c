@@ -242,6 +242,20 @@ int printk(const char *fmt, ...)
 	__coverity_format_string_sink__(fmt);
 }
 
+/* separate, generic, try_lock function */
+int trylock(void *lock)
+{
+	/* Using this uninitialized variable allows Coverity to analyze both
+	 * outcomes of this function. */
+	int cond;
+	if (cond)
+	{
+		__coverity_exclusive_lock_acquire__(lock);
+		return 1;
+	}
+	return 0;
+}
+
 /*
  * annotate all mutexes
  */
@@ -339,20 +353,6 @@ bool IS_ERR_OR_NULL(const void *ptr)
 		/* Do not free pointer here. When using this freeing, Coverity will report
 		 * many "double-free" false positives. */
 		/* __coverity_free__(ptr); */
-		return 1;
-	}
-	return 0;
-}
-
-/* separate, generic, try_lock function */
-int trylock(void *lock)
-{
-	/* Using this uninitialized variable allows Coverity to analyze both
-	 * outcomes of this function. */
-	int cond;
-	if (cond)
-	{
-		__coverity_exclusive_lock_acquire__(lock);
 		return 1;
 	}
 	return 0;
