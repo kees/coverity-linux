@@ -155,7 +155,7 @@ void *memcpy(void *dst, void *src, size_t len)
  * Allocation routines.
  *
  */
-typedef int gfp_t;
+typedef unsigned int gfp_t;
 
 void *kmalloc(size_t s, gfp_t gfp)
 {
@@ -250,6 +250,23 @@ void mutex_lock(struct mutex *lock)
 {
 	__coverity_exclusive_lock_acquire__(lock);
 }
+
+int mutex_trylock(struct mutex *lock)
+{
+    return trylock(lock);
+}
+
+int mutex_lock_interruptible(struct mutex *lock)
+{
+    int cond;
+    if (cond)
+    {
+        __coverity_exclusive_lock_acquire__(lock);
+        return 0;
+    }
+    return -1;
+}
+
 void mutex_unlock(struct mutex *lock)
 {
 	__coverity_exclusive_lock_release__(lock);
@@ -352,8 +369,6 @@ static void kfree_skbmem(struct sk_buff *skb)
     __coverity_free__(skb);
 }
 
-typedef unsigned int gfp_t;
-
 /* This function is called, somewhat nested, from alloc_skb */
 void *kmalloc_reserve(size_t size, gfp_t flags, int node,
                       bool *pfmemalloc)
@@ -370,27 +385,6 @@ int bit_spin_trylock(int bitnum, unsigned long *addr)
 void __bit_spin_unlock(int bitnum, unsigned long *addr)
 {
     __coverity_exclusive_lock_release__(addr);
-}
-
-int mutex_trylock(struct mutex *lock)
-{
-    return trylock(lock);
-}
-
-int mutex_lock_interruptible(struct mutex *lock)
-{
-    int cond;
-    if (cond)
-    {
-        __coverity_exclusive_lock_acquire__(lock);
-        return 0;
-    }
-    return -1;
-}
-
-void mutex_unlock(struct mutex *lock)
-{
-    __coverity_exclusive_lock_release__(lock);
 }
 
 static inline int epoll_mutex_lock(struct mutex *mutex, int depth,
